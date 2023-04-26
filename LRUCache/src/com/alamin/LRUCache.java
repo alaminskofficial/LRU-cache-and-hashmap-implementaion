@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 public class LRUCache {
 	private int capacity;
-	private HashMap<Integer , Node> map = new HashMap<>();
+	private HashMap<String , Node> map = new HashMap<>();
 	private Node head = null;
 	private Node tail = null;
 	
@@ -16,7 +16,7 @@ public class LRUCache {
     //	it is moved to the front of the list (since it is now the most recently used item)
     //	and its value is returned. If the item is not in the cache, -1 is returned.
 
-	public int get(int key) {
+	public int get(String key) {
 		if(map.containsKey(key)) {
 			Node node = map.get(key);
 			removeFromLL(node);
@@ -27,18 +27,46 @@ public class LRUCache {
 		}
 		
 	}
+//	The put method adds an item to the cache. If the item is already in the cache, 
+//	its value is updated and it is moved to the front of the list.
+//	If the cache is already at its capacity, the least recently used item
+//	is removed from the cache. Then, a new node is created with the key and value,
+//	added to the front of the list, and added to the hashmap.
+	
+	public void put(String key, int value) {
+		if(map.containsKey(key)) {
+			Node node = map.get(key);
+			node.value = value;
+			removeFromLL(node);
+			addToTop(node);
+		}else {
+			if(map.size() == capacity) {
+				map.remove(tail.key);
+				removeFromLL(tail);
+			}
+			Node node = new Node(key , value);
+			addToTop(node);
+			map.put(key, node);
+		}
+	}
+	
+	// most recent key 
+	
+	public Node front() {
+        return head;
+    }
+	
     // The add method adds a node to the front of the list. 
 	private void addToTop(Node node) {
-		Node newNode = new Node(node.key , node.value);
-		newNode.prev = null;
-		newNode.next = head;
-		if(head != null) {
-			head.prev = newNode;
-		}
-		head = newNode;
-		if(tail == null) {
-			tail= newNode;
-		}
+		Node newNode = new Node(node.key, node.value);
+	    newNode.prev = null;
+	    newNode.next = head;
+	    if (head != null) {
+	        head.prev = newNode;
+	    } else {
+	        tail = newNode; 
+	    }
+	    head = newNode;
 		
 	}
 	
@@ -57,4 +85,6 @@ public class LRUCache {
 		node.prev = null;
 		node.next = null;
 	}
+	
+	
 }

@@ -1,12 +1,12 @@
 package com.alamin;
 
 public class Node {
-	int key;
+	String key;
 	int value;
 	Node prev;
 	Node next;
 	
-	public Node(int key, int value) {
+	public Node(String key, int value) {
 		this.key = key;
 		this.value = value;
 	}
