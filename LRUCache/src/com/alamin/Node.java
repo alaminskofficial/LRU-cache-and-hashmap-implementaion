@@ -6,5 +6,11 @@ public class Node {
 	Node prev;
 	Node next;
 	
+	public Node(int key, int value) {
+		this.key = key;
+		this.value = value;
+	}
+	
+	
 
 }
