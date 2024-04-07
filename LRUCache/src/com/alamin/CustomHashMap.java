@@ -1,97 +1,101 @@
 package com.alamin;
 import java.util.LinkedList;
 
-public class CustomHashMap<K, V> {
-        private static final int DEFAULT_CAPACITY = 16; 
-        private static final double LOAD_FACTOR = 0.75;
-        private LinkedList<Pair<K, V>>[] table;
-        private int size;
+/**
+ * CustomHashMap is a class that implements a basic HashMap data structure.
+ * It uses generics K and V to allow for flexibility in key and value types.
+ * The HashMap uses LinkedLists for handling collisions.
+ */
+public class CustomHashMap<K , V> {
+    // Default size for the HashMap
+    private static final int DEFAULT_SIZE = 16;
+    // Default load factor for the HashMap
+    private static final double DEFAULT_LOAD_FACTOR = 0.75;
+    // Size of the HashMap
+    private int size;
+    // Array of LinkedLists to store the key-value pairs
+    private LinkedList<Pair<K,V>> [] buckets;
 
-         public CustomHashMap() {
-            this.table = new LinkedList[DEFAULT_CAPACITY];
-            for (int i = 0; i < DEFAULT_CAPACITY; i++) {
-                this.table[i] = new LinkedList<>();
-            }
-         }
-
-
-        public CustomHashMap(int capacity) {
-            table = new LinkedList[capacity];
-            for (int i = 0; i < capacity; i++) {
-                table[i] = new LinkedList<>();
-            }
+    /**
+     * Default constructor for the CustomHashMap class.
+     * Initializes the buckets array with the default size.
+     */
+    public CustomHashMap() {
+        this.buckets = new LinkedList[DEFAULT_SIZE];
+        for(int i = 0; i < DEFAULT_SIZE; i++){
+            this.buckets[i] = new LinkedList<>();
         }
-
-        private int getBucketIndex(K key) {
-            int hashCode = key.hashCode();
-            return hashCode % table.length;
-        }
-
-        public void put(K key, V value) {
-            int bucketIndex = getBucketIndex(key);
-            LinkedList<Pair<K, V>> bucket = table[bucketIndex];
-
-            for (Pair<K, V> pair : bucket) {
-                if (pair.key.equals(key)) {
-                    pair.value = value;
-                    return;
-                }
-            }
-
-            bucket.add(new Pair<>(key, value));
-            size++;
-
-            if ((double) size / table.length > LOAD_FACTOR) {
-                resize();
-            }
-        }
-
-        public V get(K key) {
-            int bucketIndex = getBucketIndex(key);
-            LinkedList<Pair<K, V>> bucket = table[bucketIndex];
-
-            for (Pair<K, V> pair : bucket) {
-                if (pair.key.equals(key)) {
-                    return pair.value;
-                }
-            }
-
-            return null;
-        }
-
-        public void remove(K key) {
-            int bucketIndex = getBucketIndex(key);
-            LinkedList<Pair<K, V>> bucket = table[bucketIndex];
-
-            for (Pair<K, V> pair : bucket) {
-                if (pair.key.equals(key)) {
-                    bucket.remove(pair);
-                    size--;
-                    return;
-                }
-            }
-        }
-
-        public int size() {
-            return size;
-        }
-
-        private void resize() {
-            int newCapacity = table.length * 2;
-            LinkedList<Pair<K, V>>[] newTable = new LinkedList[newCapacity];
-
-            for (int i = 0; i < newCapacity; i++) {
-                newTable[i] = new LinkedList<>();
-            }
-
-            for (LinkedList<Pair<K, V>> bucket : table) {
-                for (Pair<K, V> pair : bucket) {
-                    int newBucketIndex = pair.key.hashCode() % newCapacity;
-                    newTable[newBucketIndex].add(pair);
-                }
-            }
-
-            table = newTable;
-        }
-
     }
+
+    /**
+     * Constructor for the CustomHashMap class that takes a capacity argument.
+     * Initializes the buckets array with the given capacity.
+     * @param capacity The initial capacity of the HashMap.
+     */
+    public CustomHashMap(int capacity) {
+        this.buckets = new LinkedList[capacity];
+        for(int i = 0; i < capacity; i++){
+            this.buckets[i] = new LinkedList<>();
+        }
+    }
+    private int bucketIndex(K key){
+        return key.hashCode() % buckets.length;
+    }
+    public void put(K key  , V value){
+        int bucketIndex = bucketIndex(key);
+        LinkedList<Pair<K,V>> bucket = buckets[bucketIndex];
+        for(Pair<K,V> pair : bucket){
+            if(pair.key.equals(key)){
+                pair.value = value;
+                return;
+            }
+        }
+        bucket.add(new Pair<>(key,value));
+        size++;
+        if((1.0*size)/buckets.length > DEFAULT_LOAD_FACTOR){
+            rehash();
+        }
+    }
+    public V get(K key){
+        int bucketIndex = bucketIndex(key);
+        LinkedList<Pair<K,V>> bucket = buckets[bucketIndex];
+        for(Pair<K,V> pair : bucket){
+            if(pair.key.equals(key)){
+                return pair.value;
+            }
+        }
+        return null;
+    }
+    public V remove(K key){
+        int bucketIndex = bucketIndex(key);
+        LinkedList<Pair<K,V>> bucket = buckets[bucketIndex];
+        Pair<K,V> toRemove = null;
+        for(Pair<K,V> pair : bucket){
+            if(pair.key.equals(key)){
+                toRemove = pair;
+                break;
+            }
+        }
+        if(toRemove != null){
+            bucket.remove(toRemove);
+            size--;
+            return toRemove.value;
+        }
+        return null;
+    }
+    public int size(){
+        return size;
+    }
+    private void rehash(){
+        LinkedList<Pair<K,V>> [] temp = buckets;
+        buckets = new LinkedList[2*temp.length];
+        for(int i = 0; i < 2*temp.length; i++){
+            buckets[i] = new LinkedList<>();
+        }
+        for(LinkedList<Pair<K,V>> bucket : temp){
+            for(Pair<K,V> pair : bucket){
+                put(pair.key,pair.value);
+            }
+        }
+    }
+}
